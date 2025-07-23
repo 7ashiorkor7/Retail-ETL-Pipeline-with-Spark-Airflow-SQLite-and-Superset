@@ -21,9 +21,10 @@ services:
       AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
       AIRFLOW__WEBSERVER__WORKERS: 1
       WEB_SERVER_WORKER_TIMEOUT: 300
+      AIRFLOW__WEBSERVER__SECRET_KEY: my_super_secret_key_123
     volumes:
-      - ../dags:/opt/airflow/dags
-      - ../spark_jobs:/opt/airflow/spark_jobs
+      - ./dags:/opt/airflow/dags
+      - ./spark_jobs:/opt/airflow/spark_jobs
     ports:
       - "8080:8080"
     command: webserver
@@ -35,10 +36,13 @@ services:
     environment:
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
+      AIRFLOW__WEBSERVER__SECRET_KEY: my_super_secret_key_123
+
     volumes:
-      - ../dags:/opt/airflow/dags
-      - ../spark_jobs:/opt/airflow/spark_jobs
+      - ./dags:/opt/airflow/dags
+      - ./spark_jobs:/opt/airflow/spark_jobs
     command: scheduler
 
 volumes:
   postgres-db-volume:
+
