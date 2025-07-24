@@ -26,7 +26,7 @@ for i in range(100):
         "YR_QTR_NUM": int(f"{date.year}{(date.month - 1) // 3 + 1}")
     })
 
-pd.DataFrame(calendar_data).to_csv("data/raw/calendar_mid.csv", index=False)
+pd.DataFrame(calendar_data).to_csv("data/raw/calendar.csv", index=False)
 
 ### 2. Product Data
 product_data = []
@@ -45,7 +45,7 @@ for i in range(1, 101):
         "SUBCATEGORY_NAME": f"subcategory-{random.randint(1, 5)}"
     })
 
-pd.DataFrame(product_data).to_csv("data/raw/product_mid.csv", index=False)
+pd.DataFrame(product_data).to_csv("data/raw/product.csv", index=False)
 
 ### 3. Store Data
 store_data = []
@@ -74,7 +74,7 @@ for i in range(1, 51):
         "LONGITUDE": round(random.uniform(-120.0, -70.0), 6)
     })
 
-pd.DataFrame(store_data).to_csv("data/raw/store_mid.csv", index=False)
+pd.DataFrame(store_data).to_csv("data/raw/store.csv", index=False)
 
 ### 4. Sales Data
 sales_data = []
@@ -104,7 +104,7 @@ for i in range(1, 1001):
         "SHIP_COST": round(random.uniform(0.5, 5.0), 2)
     })
 
-pd.DataFrame(sales_data).to_csv("data/raw/sales_mid.csv", index=False)
+pd.DataFrame(sales_data).to_csv("data/raw/sales.csv", index=False)
 
 ### 5. Inventory Data
 inventory_data = []
@@ -125,6 +125,6 @@ for i in range(1, 1001):
         "NEXT_DELIVERY_DT": (date + timedelta(days=random.randint(1, 7))).strftime("%Y-%m-%d")
     })
 
-pd.DataFrame(inventory_data).to_csv("data/raw/inventory_mid.csv", index=False)
+pd.DataFrame(inventory_data).to_csv("data/raw/inventory.csv", index=False)
 
 print("All dummy datasets generated in 'data/raw/' folder.")

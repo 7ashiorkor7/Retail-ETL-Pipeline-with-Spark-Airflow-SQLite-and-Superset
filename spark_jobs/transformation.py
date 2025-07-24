@@ -7,11 +7,11 @@ spark = SparkSession.builder \
     .getOrCreate()
 
 # Load CSV files (update paths if needed)
-stores = spark.read.csv("/opt/app/data/raw/store_mid.csv", header=True, inferSchema=True)
-sales = spark.read.csv("/opt/app/data/raw/sales_mid.csv", header=True, inferSchema=True)
-products = spark.read.csv("/opt/app/data/raw/product_mid.csv", header=True, inferSchema=True)
-inventory = spark.read.csv("/opt/app/data/raw/inventory_mid.csv", header=True, inferSchema=True)
-calendar = spark.read.csv("/opt/app/data/raw/calendar_mid.csv", header=True, inferSchema=True)
+stores = spark.read.csv("/opt/app/data/raw/store.csv", header=True, inferSchema=True)
+sales = spark.read.csv("/opt/app/data/raw/sales.csv", header=True, inferSchema=True)
+products = spark.read.csv("/opt/app/data/raw/product.csv", header=True, inferSchema=True)
+inventory = spark.read.csv("/opt/app/data/raw/inventory.csv", header=True, inferSchema=True)
+calendar = spark.read.csv("/opt/app/data/raw/calendar.csv", header=True, inferSchema=True)
 
 
 # Convert string dates to date types
