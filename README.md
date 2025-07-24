@@ -63,8 +63,8 @@ The goal: **centralise, transform, and analyse** this fragmented data to answer 
 |  Orchestration | Apache Airflow |
 |  Containerization | Docker |
 
-```
 ## Project Structure
+```
 Retail-ETL-Pipeline-with-Spark-Airflow-SQLite-and-Superset/
 │
 ├── data/
