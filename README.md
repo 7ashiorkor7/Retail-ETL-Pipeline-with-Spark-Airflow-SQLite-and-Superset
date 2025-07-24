@@ -63,34 +63,4 @@ The goal: **centralise, transform, and analyse** this fragmented data to answer 
 |  Orchestration | Apache Airflow |
 |  Containerization | Docker |
 
-## Project Structure
-Retail-ETL-Pipeline-with-Spark-Airflow-SQLite-and-Superset/
-│
-├── data/
-│   ├── raw/
-│   │   ├── calendar.csv
-│   │   ├── inventory.csv
-│   │   ├── product.csv
-│   │   ├── sales.csv
-│   │   └── store.csv
-│   └── processed/                 # Output of Spark transformation
-│
-├── spark_jobs/
-│   └── transformation.py         # ETL logic using PySpark
-│   └── retail_etl.py         # 
-│
-├── scripts/
-│   ├── generate_dummy_data.py      # Script to generate dummy retail data
-│   ├── load_data_to_sqlite.py         # Script to load processed data to SQLite
-│   └── queries.sql               # SQL queries used for data analysis
-│
-├── docker/
-│   ├── docker-compose.yml            #  for orchestration
-│   └── dags/
-│       └── retail_pipieline_dag.py # Airflow DAG orchestrating the ETL
-│
-├── retail_oltp.db                # SQLite database
-├── notebooks/                    # for data exploration
-└── README.md
-
 
