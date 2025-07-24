@@ -63,7 +63,8 @@ The goal: **centralise, transform, and analyse** this fragmented data to answer 
 |  Orchestration | Apache Airflow |
 |  Containerization | Docker |
 
-
+```
+## Project Structure
 Retail-ETL-Pipeline-with-Spark-Airflow-SQLite-and-Superset/
 │
 ├── data/
@@ -87,3 +88,4 @@ Retail-ETL-Pipeline-with-Spark-Airflow-SQLite-and-Superset/
 ├── retail_oltp.db                   # SQLite database storing the final results
 ├── notebooks/                       # Jupyter notebooks for data exploration
 └── README.md                        # Project documentation
+```
