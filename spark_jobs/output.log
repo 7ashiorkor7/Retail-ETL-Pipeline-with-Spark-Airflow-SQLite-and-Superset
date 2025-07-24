@@ -1,0 +1,16 @@
+WARNING: Using incubator modules: jdk.incubator.vector
+Exception in thread "main" java.lang.IllegalArgumentException: basedir must be absolute: ?/.ivy2.5.2/local
+	at org.apache.ivy.util.Checks.checkAbsolute(Checks.java:48)
+	at org.apache.ivy.plugins.repository.file.FileRepository.setBaseDir(FileRepository.java:137)
+	at org.apache.ivy.plugins.repository.file.FileRepository.<init>(FileRepository.java:44)
+	at org.apache.spark.util.MavenUtils$.createRepoResolvers(MavenUtils.scala:159)
+	at org.apache.spark.util.MavenUtils$.buildIvySettings(MavenUtils.scala:287)
+	at org.apache.spark.util.DependencyUtils$.resolveMavenDependencies(DependencyUtils.scala:118)
+	at org.apache.spark.deploy.SparkSubmit.prepareSubmitEnvironment(SparkSubmit.scala:341)
+	at org.apache.spark.deploy.SparkSubmit.org$apache$spark$deploy$SparkSubmit$$runMain(SparkSubmit.scala:961)
+	at org.apache.spark.deploy.SparkSubmit.doRunMain$1(SparkSubmit.scala:204)
+	at org.apache.spark.deploy.SparkSubmit.submit(SparkSubmit.scala:227)
+	at org.apache.spark.deploy.SparkSubmit.doSubmit(SparkSubmit.scala:96)
+	at org.apache.spark.deploy.SparkSubmit$$anon$2.doSubmit(SparkSubmit.scala:1132)
+	at org.apache.spark.deploy.SparkSubmit$.main(SparkSubmit.scala:1141)
+	at org.apache.spark.deploy.SparkSubmit.main(SparkSubmit.scala)
