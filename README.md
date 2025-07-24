@@ -50,7 +50,7 @@ The goal: **centralise, transform, and analyse** this fragmented data to answer 
 | Files weren’t accessible in container | Properly mounted host path with `-v "..."` syntax |
 | Output wasn’t saving | Directed Spark to write explicitly to mounted `/opt/app/data/processed/` |
 
-> I also dealt with path issues on Windows + Docker, Spark’s verbosity, and Docker memory limits on AWS Free Tier.
+> Because I was on the AWS Free Tier, I opted for Docker instead of EMR, which came with its own challenges like managing Windows path quirks, wrangling Spark’s verbose logs, and working around Docker’s memory limitations.
 
 ## Tech Stack
 
