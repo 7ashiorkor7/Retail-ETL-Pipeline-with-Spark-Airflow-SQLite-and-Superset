@@ -58,9 +58,32 @@ The goal: **centralise, transform, and analyse** this fragmented data to answer 
 |-------|-------|
 |  Raw Data | CSVs in `/data/raw/` |
 |  ETL | Apache Spark (Python) |
-|   Database | SQLite (future step) |
+|   Database | SQLite  |
 |   Visualization | Apache Superset |
 |  Orchestration | Apache Airflow |
 |  Containerization | Docker |
 
+Retail-ETL-Pipeline-with-Spark-Airflow-SQLite-and-Superset/
+│
+├── data/
+│   ├── raw/                         # Original dummy datasets (calendar, sales, etc.)
+│   └── processed/                   # Output data after Spark transformation
+│
+├── spark_jobs/
+│   ├── transformation.py            # PySpark script for ETL processing
+│   └── retail_etl.py                # Alternate or combined ETL logic (if applicable)
+│
+├── scripts/
+│   ├── generate_dummy_data.py       # Script to generate sample retail datasets
+│   ├── load_data_to_sqlite.py       # Loads transformed data into SQLite
+│   └── queries.sql                  # SQL queries for analysis and validation
+│
+├── docker/
+│   ├── docker-compose.yml           # Orchestrates services (Spark, Airflow, etc.)
+│   └── dags/
+│       └── retail_pipeline_dag.py   # Airflow DAG to automate the ETL pipeline
+│
+├── retail_oltp.db                   # SQLite database storing the final results
+├── notebooks/                       # Jupyter notebooks for data exploration
+└── README.md                        # Project documentation
 
