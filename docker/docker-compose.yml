@@ -24,6 +24,7 @@ services:
     volumes:
       - ./dags:/opt/airflow/dags
       - ../spark_jobs:/opt/airflow/spark_jobs
+      - ../scripts:/opt/airflow/scripts
     ports:
       - "8080:8080"
     command: webserver
@@ -39,6 +40,7 @@ services:
     volumes:
       - ./dags:/opt/airflow/dags
       - ../spark_jobs:/opt/airflow/spark_jobs
+      - ../scripts:/opt/airflow/scripts
     command: scheduler
 
   spark:

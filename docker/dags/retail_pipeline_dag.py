@@ -14,8 +14,8 @@ default_args = {
 with DAG(
     dag_id='retail_etl_pipeline',
     default_args=default_args,
-    description='Skeleton DAG for Retail ETL Pipeline',
-    schedule_interval=None,  # Set to None to trigger manually for now
+    description='Retail ETL pipeline using Spark and SQLite',
+    schedule_interval=None,
     catchup=False,
     tags=['retail', 'etl'],
 ) as dag:
@@ -24,20 +24,22 @@ with DAG(
 
     extract_data = BashOperator(
         task_id='extract_data',
-        bash_command='echo "Simulating data extraction..."'
+        #bash_command='python3 /opt/airflow/scripts/generate_dummy_data.py'
+        bash_command='echo "Extracting data..."'
     )
 
     transform_data = BashOperator(
         task_id='transform_data',
-        bash_command='echo "Simulating Spark transformation..."'
+        #bash_command='python3 /opt/airflow/spark_jobs/transformation.py'
+        bash_command='echo "Transforming data..."'
     )
 
     load_data = BashOperator(
         task_id='load_data',
-        bash_command='echo "Simulating loading into SQLite/Postgres..."'
+        #bash_command='python3 /opt/airflow/spark_jobs/retail_etl.py'
+        bash_command='echo "Loading data..."'
     )
 
     end = DummyOperator(task_id='end')
 
-    # Set task dependencies
     start >> extract_data >> transform_data >> load_data >> end
