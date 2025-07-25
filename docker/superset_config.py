@@ -30,6 +30,8 @@ IMG_UPLOAD_URL = '/static/uploads/'
 # Logging
 ENABLE_PROXY_FIX = True
 
+PREVENT_UNSAFE_DB_CONNECTIONS = False
+
 # Optional: Email configuration (for alerts)
 # SMTP_HOST = 'localhost'
 # SMTP_PORT = 587
