@@ -9,6 +9,8 @@ services:
       POSTGRES_DB: airflow
     volumes:
       - postgres-db-volume:/var/lib/postgresql/data
+      - ./init-superset-db.sql:/docker-entrypoint-initdb.d/init-superset-db.sql
+
 
   airflow-webserver:
     image: apache/airflow:2.7.0
@@ -25,6 +27,7 @@ services:
       - ./dags:/opt/airflow/dags
       - ../spark_jobs:/opt/airflow/spark_jobs
       - ../scripts:/opt/airflow/scripts
+      - ../data:/opt/airflow/data  # Add this line to share data
     ports:
       - "8080:8080"
     command: webserver
@@ -41,6 +44,7 @@ services:
       - ./dags:/opt/airflow/dags
       - ../spark_jobs:/opt/airflow/spark_jobs
       - ../scripts:/opt/airflow/scripts
+      - ../data:/opt/airflow/data  # Add this line to share data
     command: scheduler
 
   spark:
@@ -53,7 +57,53 @@ services:
       - "8081:8080"
     volumes:
       - ../spark_jobs:/opt/spark-apps
+      - ../data:/opt/data  # Add this line to share data
 
+  superset-init:
+    image: apache/superset:latest
+    container_name: superset_init
+    depends_on:
+      - postgres # Ensure postgres is up
+    environment:
+      - SUPERSET_CONFIG_PATH=/app/superset_config.py
+    volumes:
+      # Only mount what's necessary for initialization
+      - ./superset_config.py:/app/superset_config.py
+    # This command runs once to set up the DB and create admin
+    command: >
+      bash -c "
+      echo 'Running Superset initialization...' &&
+      pip install sqlalchemy-utils psycopg2-binary &&
+      superset db upgrade &&
+      superset fab create-admin --username admin --firstname Admin --lastname User --email admin@example.com --password admin &&
+      superset init &&
+      echo 'Superset initialization complete.'
+      "
+    # Set a restart policy to 'no' so it doesn't keep running after success/failure
+    restart: "no"
 
+  # NEW: Add Superset service
+  superset:
+        image: apache/superset:latest
+        container_name: superset
+        depends_on:
+          - postgres
+          - superset-init # IMPORTANT: Ensure initialization is complete before starting webserver
+        environment:
+          - SUPERSET_CONFIG_PATH=/app/superset_config.py
+        ports:
+          - "8088:8088"
+        volumes:
+          - ../retail_oltp.db:/app/retail_oltp.db:ro
+          - ./superset_config.py:/app/superset_config.py
+          - ../data:/app/data
+        # MODIFIED COMMAND: Add pip install here for the main webserver
+        command: >
+          bash -c "
+          echo 'Installing psycopg2-binary in main superset container...' &&
+          pip install sqlalchemy-utils psycopg2-binary &&
+          echo 'Starting Superset webserver...' &&
+          superset run -h 0.0.0.0 -p 8088 --with-threads --reload --debugger
+          "
 volumes:
   postgres-db-volume:
