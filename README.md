@@ -1,5 +1,5 @@
 # Retail-ETL-Pipeline-with-Spark-Airflow-SQLite-and-Superset
-This project demonstrates an end-to-end Retail Data Engineering pipeline built using open-source tools and designed to run entirely on a local machine (or AWS Free Tier). It simulates how raw retail data flows through an ETL process into a lightweight data warehouse and is visualized in an interactive dashboard.
+This project demonstrates an end-to-end Retail Data Engineering pipeline built using open-source tools and designed to run entirely on a local machine. It simulates how raw retail data flows through an ETL process into a lightweight data warehouse and is visualized in an interactive dashboard.
 
 As a data scientist delving into data engineering through hands-on projects due to my aspiration to be a full-stack data scientist. I thrive on solving tough setup issues, learning cloud-native tools, and building real-world systems step by step.
 This project showcases:
