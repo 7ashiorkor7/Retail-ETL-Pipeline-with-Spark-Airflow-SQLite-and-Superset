@@ -1,5 +1,5 @@
 # Retail-ETL-Pipeline-with-Spark-Airflow-SQLite-and-Superset
-This project demonstrates an end-to-end Retail Data Engineering pipeline built using open-source tools and designed to run entirely on a local machine (or AWS Free Tier). It simulates how raw retail data flows through an ETL process into a lightweight data warehouse and is visualized in an interactive dashboard.
+This project demonstrates an end-to-end Retail Data Engineering pipeline built using open-source tools and designed to run entirely on a local machine. It simulates how raw retail data flows through an ETL process into a lightweight data warehouse and is visualized in an interactive dashboard.
 
 As a data scientist delving into data engineering through hands-on projects due to my aspiration to be a full-stack data scientist. I thrive on solving tough setup issues, learning cloud-native tools, and building real-world systems step by step.
 This project showcases:
@@ -42,16 +42,6 @@ The goal: **centralise, transform, and analyse** this fragmented data to answer 
 
 > I didn’t clone this. I rebuilt it from the ground up using Docker and open-source tools under strict resource constraints.
 
-###  Challenges Faced:
-| Problem | How I Solved It |
-|--------|------------------|
-| Spark threw `basedir must be absolute` error | Set `HOME=/tmp` inside the container |
-| Ivy dependency resolution failed | Used `-e HOME=/tmp` during `docker run` |
-| Files weren’t accessible in container | Properly mounted host path with `-v "..."` syntax |
-| Output wasn’t saving | Directed Spark to write explicitly to mounted `/opt/app/data/processed/` |
-
-> Because I was on the AWS Free Tier, I opted for Docker instead of EMR, which came with its own challenges like managing Windows path quirks, wrangling Spark’s verbose logs, and working around Docker’s memory limitations.
-
 ## Tech Stack
 
 | Layer | Tools |
@@ -89,3 +79,19 @@ Retail-ETL-Pipeline-with-Spark-Airflow-SQLite-and-Superset/
 ├── notebooks/                       # Jupyter notebooks for data exploration
 └── README.md                        # Project documentation
 ```
+
+### Challenges Faced
+
+| Problem | How I Solved It | What I Learned |
+|--------|------------------|----------------|
+| Spark threw `basedir must be absolute` error | Set `HOME=/tmp` inside the container | Environment variables can make or break Spark jobs in Docker. |
+| Ivy dependency resolution failed | Used `-e HOME=/tmp` during `docker run` | Some Spark dependencies need explicit directory access to resolve correctly. |
+| Files weren’t accessible in container | Properly mounted host path with `-v "..."` syntax | Docker file mounting must be handled carefully, especially on Windows. |
+| Output wasn’t saving | Directed Spark to write explicitly to mounted `/opt/app/data/processed/` | Always define exact write paths when using shared volumes. |
+| Superset: `FATAL: database "superset_metadata" does not exist` | Created `init-superset-db.sql` in `docker-entrypoint-initdb.d` and restarted with volume reset | Initial DB setup should be handled automatically via entrypoint scripts. |
+| Superset: `UniqueViolation` on `superset db upgrade` | Ran `docker volume rm` to reset corrupted database state | When migrations fail, it’s often better to wipe and reset than debug endlessly. |
+| Superset: `DeadlockDetected` from concurrent migrations | Added a `superset_init` service with `restart: "no"` and `depends_on` | Separate one-time setup tasks from runtime services to avoid conflicts. |
+| Superset: `ModuleNotFoundError: No module named 'psycopg2'` | Added `psycopg2-binary` and `sqlalchemy-utils` to pip install in container | Every container needs its own dependencies, even if they share a base image. |
+
+> Because I was on the AWS Free Tier, I opted for Docker instead of EMR, which came with its own challenges like managing Windows path quirks, wrangling Spark’s verbose logs, and working around Docker’s memory limitations.
+
