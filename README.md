@@ -42,16 +42,6 @@ The goal: **centralise, transform, and analyse** this fragmented data to answer 
 
 > I didn’t clone this. I rebuilt it from the ground up using Docker and open-source tools under strict resource constraints.
 
-###  Challenges Faced:
-| Problem | How I Solved It |
-|--------|------------------|
-| Spark threw `basedir must be absolute` error | Set `HOME=/tmp` inside the container |
-| Ivy dependency resolution failed | Used `-e HOME=/tmp` during `docker run` |
-| Files weren’t accessible in container | Properly mounted host path with `-v "..."` syntax |
-| Output wasn’t saving | Directed Spark to write explicitly to mounted `/opt/app/data/processed/` |
-
-> Because I was on the AWS Free Tier, I opted for Docker instead of EMR, which came with its own challenges like managing Windows path quirks, wrangling Spark’s verbose logs, and working around Docker’s memory limitations.
-
 ## Tech Stack
 
 | Layer | Tools |
@@ -89,3 +79,18 @@ Retail-ETL-Pipeline-with-Spark-Airflow-SQLite-and-Superset/
 ├── notebooks/                       # Jupyter notebooks for data exploration
 └── README.md                        # Project documentation
 ```
+
+### ⚙️ Challenges Faced:
+
+| Problem | How I Solved It |
+|--------|------------------|
+| Spark threw `basedir must be absolute` error | Set `HOME=/tmp` inside the container |
+| Ivy dependency resolution failed | Used `-e HOME=/tmp` during `docker run` |
+| Files weren’t accessible in container | Properly mounted host path with `-v "..."` syntax |
+| Output wasn’t saving | Directed Spark to write explicitly to mounted `/opt/app/data/processed/` |
+| Superset: `FATAL: database "superset_metadata" does not exist` | Created `init-superset-db.sql` script inside `docker-entrypoint-initdb.d` and restarted containers with volume reset |
+| Superset: `UniqueViolation` on `superset db upgrade` | Ran `docker volume rm` to reset corrupted database state |
+| Superset: `DeadlockDetected` from concurrent migrations | Added a `superset_init` one-time init service in `docker-compose.yml` with `depends_on` to manage order |
+| Superset: `ModuleNotFoundError: No module named 'psycopg2'` | Added `psycopg2-binary` and `sqlalchemy-utils` to pip install in `superset` container startup |
+
+> Because I was on the AWS Free Tier, I opted for Docker instead of EMR, which came with its own challenges like managing Windows path quirks, wrangling Spark’s verbose logs, and working around Docker’s memory limitations.
