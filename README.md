@@ -80,17 +80,18 @@ Retail-ETL-Pipeline-with-Spark-Airflow-SQLite-and-Superset/
 └── README.md                        # Project documentation
 ```
 
-### ⚙️ Challenges Faced:
+### Challenges Faced
 
-| Problem | How I Solved It |
-|--------|------------------|
-| Spark threw `basedir must be absolute` error | Set `HOME=/tmp` inside the container |
-| Ivy dependency resolution failed | Used `-e HOME=/tmp` during `docker run` |
-| Files weren’t accessible in container | Properly mounted host path with `-v "..."` syntax |
-| Output wasn’t saving | Directed Spark to write explicitly to mounted `/opt/app/data/processed/` |
-| Superset: `FATAL: database "superset_metadata" does not exist` | Created `init-superset-db.sql` script inside `docker-entrypoint-initdb.d` and restarted containers with volume reset |
-| Superset: `UniqueViolation` on `superset db upgrade` | Ran `docker volume rm` to reset corrupted database state |
-| Superset: `DeadlockDetected` from concurrent migrations | Added a `superset_init` one-time init service in `docker-compose.yml` with `depends_on` to manage order |
-| Superset: `ModuleNotFoundError: No module named 'psycopg2'` | Added `psycopg2-binary` and `sqlalchemy-utils` to pip install in `superset` container startup |
+| Problem | How I Solved It | What I Learned |
+|--------|------------------|----------------|
+| Spark threw `basedir must be absolute` error | Set `HOME=/tmp` inside the container | Environment variables can make or break Spark jobs in Docker. |
+| Ivy dependency resolution failed | Used `-e HOME=/tmp` during `docker run` | Some Spark dependencies need explicit directory access to resolve correctly. |
+| Files weren’t accessible in container | Properly mounted host path with `-v "..."` syntax | Docker file mounting must be handled carefully, especially on Windows. |
+| Output wasn’t saving | Directed Spark to write explicitly to mounted `/opt/app/data/processed/` | Always define exact write paths when using shared volumes. |
+| Superset: `FATAL: database "superset_metadata" does not exist` | Created `init-superset-db.sql` in `docker-entrypoint-initdb.d` and restarted with volume reset | Initial DB setup should be handled automatically via entrypoint scripts. |
+| Superset: `UniqueViolation` on `superset db upgrade` | Ran `docker volume rm` to reset corrupted database state | When migrations fail, it’s often better to wipe and reset than debug endlessly. |
+| Superset: `DeadlockDetected` from concurrent migrations | Added a `superset_init` service with `restart: "no"` and `depends_on` | Separate one-time setup tasks from runtime services to avoid conflicts. |
+| Superset: `ModuleNotFoundError: No module named 'psycopg2'` | Added `psycopg2-binary` and `sqlalchemy-utils` to pip install in container | Every container needs its own dependencies—even if they share a base image. |
 
 > Because I was on the AWS Free Tier, I opted for Docker instead of EMR, which came with its own challenges like managing Windows path quirks, wrangling Spark’s verbose logs, and working around Docker’s memory limitations.
+
