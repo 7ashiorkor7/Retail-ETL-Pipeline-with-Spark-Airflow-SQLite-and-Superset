@@ -1,0 +1,2 @@
+# Ignore Docker-generated log directories and symlinks
+docker/logs/

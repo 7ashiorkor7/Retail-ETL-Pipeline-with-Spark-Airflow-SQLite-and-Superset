@@ -1,4 +1,4 @@
-version: '3'
+version: '3' # Your current version
 
 services:
   postgres:
@@ -6,20 +6,65 @@ services:
     environment:
       POSTGRES_USER: airflow
       POSTGRES_PASSWORD: airflow
-      POSTGRES_DB: airflow
+      POSTGRES_DB: airflow # Default database for the 'airflow' user. Airflow will manage tables inside this.
     volumes:
       - postgres-db-volume:/var/lib/postgresql/data
-      - ./init-superset-db.sql:/docker-entrypoint-initdb.d/init-superset-db.sql
+      - ./init-databases.sql:/docker-entrypoint-initdb.d/init-databases.sql # <-- UPDATED: Ensure this path matches the new name
+    ports:
+      - "5432:5432"
+    healthcheck: # Add a healthcheck for postgres, so other services can wait for it to be truly ready
+      test: ["CMD-SHELL", "pg_isready -U airflow -d airflow"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: always
 
+  # --------------------------------------------------------------------------------------
+  # NEW SERVICE: Airflow Initialization
+  # --------------------------------------------------------------------------------------
+  airflow-init:
+    image: apache/airflow:2.7.0 # IMPORTANT: This must match your Airflow webserver/scheduler image
+    container_name: airflow-init
+    depends_on:
+      postgres: # <-- Wait for the postgres service
+        condition: service_healthy # Ensure Postgres is healthy before running init
+    environment:
+      # These must match your postgres service settings for Airflow to connect
+      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False # Set to True if you want example DAGs
+      - AIRFLOW__WEBSERVER__AUTHENTICATE=True
+      - AIRFLOW__WEBSERVER__AUTH_BACKEND=airflow.contrib.auth.backends.password_auth
+      - AIRFLOW__API__AUTH_BACKENDS=airflow.api.auth.backends.basic_auth
+      - AIRFLOW__CORE__FERNET_KEY=FAF_wXWdy3UI_nMMGQ20QxU5h6qrgmcU4U5HpepZ6Ao= # Replace with a strong key!
+    volumes:
+      # Mount these from your project root or create them if they don't exist
+      - ./dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
+      - ./plugins:/opt/airflow/plugins
+      # - ./airflow_config:/opt/airflow/airflow.cfg # Uncomment if you have a custom airflow.cfg
+    # The command sequence for initialization
+    command: >
+      bash -c "
+      echo 'Running Airflow DB init...' &&
+      airflow db init &&
+      echo 'Creating Airflow admin user...' &&
+      airflow users create --username admin --firstname Admin --lastname User --role Admin --email admin@example.com --password admin || true &&
+      echo 'Airflow initialization complete.'
+      "
+    restart: "no" # This is a one-time job
+  # --------------------------------------------------------------------------------------
 
   airflow-webserver:
     image: apache/airflow:2.7.0
     depends_on:
-      - postgres
+      airflow-init: # <-- UPDATED: Depends on airflow-init finishing successfully
+        condition: service_completed_successfully
+      postgres: # Still depends on postgres directly for general connection
+        condition: service_healthy
     environment:
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
-      AIRFLOW__CORE__FERNET_KEY: ''
+      AIRFLOW__CORE__FERNET_KEY: FAF_wXWdy3UI_nMMGQ20QxU5h6qrgmcU4U5HpepZ6Ao= # IMPORTANT: MUST MATCH FERNET_KEY in airflow-init
       AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
       AIRFLOW__WEBSERVER__WORKERS: 1
       AIRFLOW__WEBSERVER__SECRET_KEY: my_super_secret_key_123
@@ -27,25 +72,36 @@ services:
       - ./dags:/opt/airflow/dags
       - ../spark_jobs:/opt/airflow/spark_jobs
       - ../scripts:/opt/airflow/scripts
-      - ../data:/opt/airflow/data  # Add this line to share data
+      - ../data:/opt/airflow/data
     ports:
       - "8080:8080"
     command: webserver
+    healthcheck: # It's good practice to add a healthcheck for webserver
+      test: ["CMD-SHELL", "curl --fail http://localhost:8080/health"]
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    restart: always
 
   airflow-scheduler:
     image: apache/airflow:2.7.0
     depends_on:
-      - airflow-webserver
+      airflow-init: # <-- UPDATED: Depends on airflow-init finishing successfully
+        condition: service_completed_successfully
+      postgres: # Still depends on postgres directly for general connection
+        condition: service_healthy
     environment:
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
       AIRFLOW__WEBSERVER__SECRET_KEY: my_super_secret_key_123
+      AIRFLOW__CORE__FERNET_KEY: FAF_wXWdy3UI_nMMGQ20QxU5h6qrgmcU4U5HpepZ6Ao= # IMPORTANT: MUST MATCH FERNET_KEY in airflow-init
     volumes:
       - ./dags:/opt/airflow/dags
       - ../spark_jobs:/opt/airflow/spark_jobs
       - ../scripts:/opt/airflow/scripts
-      - ../data:/opt/airflow/data  # Add this line to share data
+      - ../data:/opt/airflow/data
     command: scheduler
+    restart: always
 
   spark:
     image: bitnami/spark:latest
@@ -57,19 +113,25 @@ services:
       - "8081:8080"
     volumes:
       - ../spark_jobs:/opt/spark-apps
-      - ../data:/opt/data  # Add this line to share data
+      - ../data:/opt/data
+    restart: always
 
   superset-init:
     image: apache/superset:latest
     container_name: superset_init
     depends_on:
-      - postgres # Ensure postgres is up
+      postgres: # Ensure postgres is up (and healthy, if you added healthcheck)
+        condition: service_healthy # Use this if postgres has a healthcheck
     environment:
       - SUPERSET_CONFIG_PATH=/app/superset_config.py
+      # IMPORTANT: Use the same postgres connection details as Airflow for consistency
+      - DATABASE_HOST=postgres
+      - DATABASE_PORT=5432
+      - DATABASE_USER=airflow
+      - DATABASE_PASSWORD=airflow
+      - DATABASE_DB=superset_metadata # Superset's specific DB
     volumes:
-      # Only mount what's necessary for initialization
       - ./superset_config.py:/app/superset_config.py
-    # This command runs once to set up the DB and create admin
     command: >
       bash -c "
       echo 'Running Superset initialization...' &&
@@ -79,31 +141,43 @@ services:
       superset init &&
       echo 'Superset initialization complete.'
       "
-    # Set a restart policy to 'no' so it doesn't keep running after success/failure
     restart: "no"
 
-  # NEW: Add Superset service
   superset:
-        image: apache/superset:latest
-        container_name: superset
-        depends_on:
-          - postgres
-          - superset-init # IMPORTANT: Ensure initialization is complete before starting webserver
-        environment:
-          - SUPERSET_CONFIG_PATH=/app/superset_config.py
-        ports:
-          - "8088:8088"
-        volumes:
-          - ../retail_oltp.db:/app/retail_oltp.db:ro
-          - ./superset_config.py:/app/superset_config.py
-          - ../data:/app/data
-        # MODIFIED COMMAND: Add pip install here for the main webserver
-        command: >
-          bash -c "
-          echo 'Installing psycopg2-binary in main superset container...' &&
-          pip install sqlalchemy-utils psycopg2-binary &&
-          echo 'Starting Superset webserver...' &&
-          superset run -h 0.0.0.0 -p 8088 --with-threads --reload --debugger
-          "
+    image: apache/superset:latest
+    container_name: superset
+    depends_on:
+      superset-init: # IMPORTANT: Ensure initialization is complete before starting webserver
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+    environment:
+      - SUPERSET_CONFIG_PATH=/app/superset_config.py
+      # IMPORTANT: Use the same postgres connection details as Airflow for consistency
+      - DATABASE_HOST=postgres
+      - DATABASE_PORT=5432
+      - DATABASE_USER=airflow
+      - DATABASE_PASSWORD=airflow
+      - DATABASE_DB=superset_metadata
+    ports:
+      - "8088:8088"
+    volumes:
+      - ../retail_oltp.db:/app/retail_oltp.db:ro
+      - ./superset_config.py:/app/superset_config.py
+      - ../data:/app/data
+    command: >
+      bash -c "
+      echo 'Installing psycopg2-binary in main superset container...' &&
+      pip install sqlalchemy-utils psycopg2-binary &&
+      echo 'Starting Superset webserver...' &&
+      superset run -h 0.0.0.0 -p 8088 --with-threads --reload --debugger
+      "
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail http://localhost:8088/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: always
+
 volumes:
   postgres-db-volume:
