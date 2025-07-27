@@ -91,7 +91,7 @@ Retail-ETL-Pipeline-with-Spark-Airflow-SQLite-and-Superset/
 | Superset: `FATAL: database "superset_metadata" does not exist` | Created `init-superset-db.sql` in `docker-entrypoint-initdb.d` and restarted with volume reset | Initial DB setup should be handled automatically via entrypoint scripts. |
 | Superset: `UniqueViolation` on `superset db upgrade` | Ran `docker volume rm` to reset corrupted database state | When migrations fail, it’s often better to wipe and reset than debug endlessly. |
 | Superset: `DeadlockDetected` from concurrent migrations | Added a `superset_init` service with `restart: "no"` and `depends_on` | Separate one-time setup tasks from runtime services to avoid conflicts. |
-| Superset: `ModuleNotFoundError: No module named 'psycopg2'` | Added `psycopg2-binary` and `sqlalchemy-utils` to pip install in container | Every container needs its own dependencies—even if they share a base image. |
+| Superset: `ModuleNotFoundError: No module named 'psycopg2'` | Added `psycopg2-binary` and `sqlalchemy-utils` to pip install in container | Every container needs its own dependencies, even if they share a base image. |
 
 > Because I was on the AWS Free Tier, I opted for Docker instead of EMR, which came with its own challenges like managing Windows path quirks, wrangling Spark’s verbose logs, and working around Docker’s memory limitations.
 
