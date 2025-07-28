@@ -38,9 +38,11 @@ The goal: **centralise, transform, and analyse** this fragmented data to answer 
 - What’s the current inventory situation?
 - What gross margin are we making per product category?
 
-## What Makes This Unique
+## What Makes This Unique and what I enjoyed about it
 
 > I didn’t clone this. I rebuilt it from the ground up using Docker and open-source tools under strict resource constraints.
+> This project really challenged me. I hadn’t used Docker in a few years, so getting everything to run smoothly was tough at first. Especially troubleshooting container permissions, environment variables, and Superset integration. But it turned into a fun and rewarding learning experience.
+> More than anything, it reinforced my aspiration to become a full-stack data scientist — someone who can seamlessly blend engineering, modeling, analysis, and visualization, and excel at each even when faced with tough challenges.
 
 ## Tech Stack
 
