@@ -86,7 +86,7 @@ Retail-ETL-Pipeline-with-Spark-Airflow-SQLite-and-Superset/
 |--------|------------------|----------------|
 | Spark threw `basedir must be absolute` error | Set `HOME=/tmp` inside the container | Environment variables can make or break Spark jobs in Docker. |
 | Ivy dependency resolution failed | Used `-e HOME=/tmp` during `docker run` | Some Spark dependencies need explicit directory access to resolve correctly. |
-| Files weren’t accessible in container | Properly mounted host path with `-v "..."` syntax | Docker file mounting must be handled carefully, especially on Windows. |
+| Files weren’t accessible in the container | Properly mounted host path with `-v "..."` syntax | Docker file mounting must be handled carefully, especially on Windows. |
 | Output wasn’t saving | Directed Spark to write explicitly to mounted `/opt/app/data/processed/` | Always define exact write paths when using shared volumes. |
 | Superset: `FATAL: database "superset_metadata" does not exist` | Created `init-superset-db.sql` in `docker-entrypoint-initdb.d` and restarted with volume reset | Initial DB setup should be handled automatically via entrypoint scripts. |
 | Superset: `UniqueViolation` on `superset db upgrade` | Ran `docker volume rm` to reset corrupted database state | When migrations fail, it’s often better to wipe and reset than debug endlessly. |
@@ -94,4 +94,11 @@ Retail-ETL-Pipeline-with-Spark-Airflow-SQLite-and-Superset/
 | Superset: `ModuleNotFoundError: No module named 'psycopg2'` | Added `psycopg2-binary` and `sqlalchemy-utils` to pip install in container | Every container needs its own dependencies, even if they share a base image. |
 
 > Because I was on the AWS Free Tier, I opted for Docker instead of EMR, which came with its own challenges like managing Windows path quirks, wrangling Spark’s verbose logs, and working around Docker’s memory limitations.
+
+## Superset Dashboard: Sales Performance Insights
+
+This project includes an interactive dashboard built using **Apache Superset** to explore and communicate sales performance across stores and time.  
+All visualisations were powered by **custom SQL queries**, not drag-and-drop, which demonstrates full control over data aggregation, filtering, and transformation.
+
+![sales_performance_dashboard](https://github.com/user-attachments/assets/6e567aff-487b-4690-aa8d-8edc01f1d95c)
 
