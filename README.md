@@ -1,11 +1,13 @@
 # Retail-ETL-Pipeline-with-Spark-Airflow-SQLite-and-Superset
-This project demonstrates an end-to-end Retail Data Engineering pipeline built using open-source tools and designed to run entirely on a local machine. It simulates how raw retail data flows through an ETL process into a lightweight data warehouse and is visualized in an interactive dashboard.
+I love data and versatility. Lately, I have been curious about being a full-stack data scientist. So, I decided to give it a shot by building up my data engineering skills. However, I had some exposure to it through work experiences where I had to cover basic data engineering tasks as the only data scientist on the team. Wonderful right? This project focuses on building a Retail ETL Pipeline. Buying and selling go on everywhere in the world, so a common project to start with. I have been bolted out of my comfort zone with this project, and I must admit that I enjoyed it even amidst the challenges. The initial plan was to use AWS, but my free tier subscription did not cover the demands of the project, so Docker came to the rescue. Don't we all love technology? There is almost always a substitute. Never say never! Interestingly, I also encountered resource constraints locally. But like I said, never say never! I'm excited about everything I have learnt so far. Data engineering has a number of moving parts, which makes it fun and, at the same time, demanding. I appreciate data engineering more and more now. If you want all the nitty-gritty of this project, kindly find it below. 
 
-As a data scientist delving into data engineering through hands-on projects due to my aspiration to be a full-stack data scientist. I thrive on solving tough setup issues, learning cloud-native tools, and building real-world systems step by step.
+This project demonstrates an end-to-end Retail Data Engineering pipeline built using open-source tools and designed to run entirely on a local machine. It simulates how raw retail data flows through an ETL process into a lightweight data warehouse and is visualised in an interactive dashboard.
+
+As a data scientist delving into data engineering through hands-on projects due to my aspiration to be a full-stack data scientist. 
 This project showcases:
 - Problem-solving under resource constraints
 - Working fluently with Docker
-- Running Spark jobs outside of tutorials
+- Running Spark jobs 
 - My curiosity and willingness to learn in public
 
 ## Overview
